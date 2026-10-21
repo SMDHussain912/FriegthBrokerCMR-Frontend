@@ -1,26 +1,111 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * FreightBrokerCMR — "Ops Console" design system.
+ *
+ * Deliberately dark: freight brokerage is a control-tower workflow, and the
+ * four-state vetting result (PASS / FAIL / NEEDS_REVIEW / UNKNOWN) reads far
+ * faster on a deep background than on the light grey SaaS dashboards that
+ * every competitor ships.
+ */
+
+@theme {
+  /* Surfaces — deep navy-graphite, from page base to raised card. */
+  --color-ink-950: #05080f;
+  --color-ink-900: #0a1020;
+  --color-ink-850: #0e1628;
+  --color-ink-800: #131d33;
+  --color-ink-700: #1b2740;
+  --color-ink-600: #25334f;
+  --color-ink-500: #35466a;
+
+  /* Text — cool mist ramp. */
+  --color-mist-50: #f4f7fc;
+  --color-mist-100: #e6edf8;
+  --color-mist-200: #c4d2e6;
+  --color-mist-300: #9fb1cc;
+  --color-mist-400: #7d90af;
+  --color-mist-500: #64769a;
+
+  /* Brand — signal azure. */
+  --color-brand-300: #9ec5ff;
+  --color-brand-400: #6ba4ff;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+
+  /* Four-state vetting status. */
+  --color-pass-400: #4ade80;
+  --color-pass-500: #22c55e;
+  --color-pass-600: #16a34a;
+  --color-pass-950: #052e16;
+
+  --color-review-400: #fbbf24;
+  --color-review-500: #f59e0b;
+  --color-review-600: #d97706;
+  --color-review-950: #2a1a03;
+
+  --color-fail-400: #fb7185;
+  --color-fail-500: #ef4444;
+  --color-fail-600: #dc2626;
+  --color-fail-950: #2c0809;
+
+  --color-unknown-400: #94a3b8;
+  --color-unknown-500: #64748b;
+  --color-unknown-600: #475569;
+  --color-unknown-950: #1e293b;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --radius-panel: 0.875rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  * {
+    border-color: var(--color-ink-700);
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-ink-950);
+    color: var(--color-mist-100);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-brand-500) 35%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-400);
+    outline-offset: 2px;
+  }
+
+  /* Slim, unobtrusive scrollbars for the dense ops tables. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink-600) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-ink-600);
+    border-radius: 9999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-ink-500);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
