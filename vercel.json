@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "regions": ["iad1"],
+  "crons": [],
+  "env": {
+    "NEXT_PUBLIC_BACKEND_API_URL": {
+      "sensitive": false
+    },
+    "NEXT_PUBLIC_APP_URL": {
+      "sensitive": false
+    }
+  }
+}
