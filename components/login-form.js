@@ -117,6 +117,12 @@ export default function LoginForm() {
         >
           Use demo compliance credentials
         </button>
+        <a
+          href="/signup"
+          className="text-mist-400 underline decoration-dotted underline-offset-4 transition-colors hover:text-mist-200"
+        >
+          Create an account
+        </a>
       </div>
     </form>
   );

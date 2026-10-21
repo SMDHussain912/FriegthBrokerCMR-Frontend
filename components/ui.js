@@ -1,4 +1,4 @@
-import { vettingStateStyle } from "@/lib/format";
+import { vettingStateStyle, loadStateStyle } from "@/lib/format";
 
 /** Panel: the raised surface used for every card in the console. */
 export function Panel({ className = "", children }) {
@@ -37,6 +37,72 @@ export function StatusBadge({ status, size = "md", className = "" }) {
       <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden="true" />
       {style.label}
     </span>
+  );
+}
+
+/**
+ * Load lifecycle pill.
+ *
+ * Deliberately separate from `StatusBadge`: a load's status is a workflow
+ * state, not a vetting outcome. Reusing the vetting badge here made every
+ * load render as "Unknown" and would have shown a CANCELLED load with the
+ * FAIL treatment.
+ */
+export function LoadStatusBadge({ status, size = "md", className = "" }) {
+  const style = loadStateStyle(status);
+  const sizing =
+    size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[11px]";
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full font-semibold uppercase tracking-[0.08em] ring-1 ring-inset ${style.badge} ${sizing} ${className}`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden="true" />
+      {style.label}
+    </span>
+  );
+}
+
+/**
+ * Data table shell.
+ *
+ * Every data table in the console shares the same high-density treatment from
+ * the design system: a 36px header strip on the card surface, hairline row
+ * dividers, a subtle hover wash and left-edge glow on the selected record.
+ *
+ * Accessibility is handled here so no table can forget it: the caption is
+ * rendered (visually hidden by default) and every column header carries
+ * `scope="col"`.
+ */
+export function DataTable({
+  caption,
+  headers,
+  children,
+  className = "",
+}) {
+  return (
+    <div
+      className={`overflow-x-auto overflow-hidden rounded-lg border border-ink-700 bg-ink-900/70 ${className}`}
+    >
+      <table className="w-full text-sm border-collapse">
+        <caption className="sr-only">{caption}</caption>
+        <thead>
+          <tr className="border-b border-ink-700 bg-ink-850">
+            {headers.map((header) => (
+              <th
+                key={header.label}
+                scope="col"
+                className={`px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.1em] text-mist-500 ${
+                  header.align === "right" ? "text-right" : "text-left"
+                }`}
+              >
+                {header.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-ink-800">{children}</tbody>
+      </table>
+    </div>
   );
 }
 

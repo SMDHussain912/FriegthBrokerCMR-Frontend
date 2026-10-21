@@ -12,7 +12,6 @@ export default async function CarrierDetailPage({ params }) {
   const { id } = await params;
 
   let carrier;
-  let vetting;
   try {
     carrier = await getCarrier(id);
   } catch {
@@ -39,11 +38,24 @@ export default async function CarrierDetailPage({ params }) {
     );
   }
 
+  // Vetting evaluation is a separate, independently-failing call. A carrier
+  // dossier must still render when the evaluation endpoint is unavailable —
+  // the missing evaluation is reported in-panel rather than blanking the page.
+  let vetting = null;
+  let vettingError = null;
   try {
     vetting = await getCarrierVetting(id);
-  } catch {
-    vetting = null;
+  } catch (error) {
+    vettingError =
+      error?.message ||
+      "Vetting evaluation could not be loaded. The carrier dossier below is still current.";
   }
 
-  return <CarrierDetailClient carrier={carrier} vetting={vetting} />;
+  return (
+    <CarrierDetailClient
+      carrier={carrier}
+      vetting={vetting}
+      vettingError={vettingError}
+    />
+  );
 }

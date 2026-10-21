@@ -7,16 +7,10 @@
  * so the user identity is never exposed to client JavaScript.
  */
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/data.server";
 import { logoutAction } from "@/app/actions/logout";
-
-const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: "◈" },
-  { href: "/dashboard/loads", label: "Loads", icon: "↦" },
-  { href: "/dashboard/carriers", label: "Carriers", icon: "⌂" },
-];
+import { DashboardNav } from "@/components/dashboard-nav";
 
 export default async function DashboardLayout({ children }) {
   const user = await getCurrentUser();
@@ -64,32 +58,7 @@ export default async function DashboardLayout({ children }) {
         <aside
           className="flex w-64 flex-col border-r border-ink-700 bg-ink-900 shrink-0"
         >
-          <nav className="flex-1 px-3 py-4 space-y-1">
-            {NAV.map((item) => {
-              const isActive = typeof window !== "undefined"
-                ? window.location.pathname === item.href
-                : false;
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                    isActive
-                      ? "bg-brand-500/10 text-brand-300 ring-1 ring-inset ring-brand-500/20"
-                      : "text-mist-400 hover:bg-ink-800 hover:text-mist-100"
-                  }`}
-                >
-                  <span
-                    className="text-mist-500"
-                    aria-hidden="true"
-                  >
-                    {item.icon}
-                  </span>
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+          <DashboardNav />
 
           <div className="px-3 py-4 border-t border-ink-700 mt-auto">
             <p className="text-[10px] uppercase tracking-[0.1em] text-mist-500">

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Panel, PanelHeader, StatusBadge, Chip, DataPoint } from "@/components/ui";
 import { formatCurrency, formatDate } from "@/lib/format";
 
-export function CarrierDetailClient({ carrier, vetting }) {
+export function CarrierDetailClient({ carrier, vetting, vettingError = null }) {
 
   return (
     <div className="space-y-6">
@@ -110,12 +110,12 @@ export function CarrierDetailClient({ carrier, vetting }) {
       {/* Global vetting evaluation */}
       <Panel>
         <PanelHeader title="Global account-level vetting" description="Evaluation against the brokerage baseline (dry van, $100k cargo, $1M auto liability)." />
-        {error ? (
-          <div className="px-5 py-3 rounded-lg border border-fail-500/30 bg-fail-950/60 text-xs text-fail-400">{error}</div>
-        ) : null}
-        {evaluating && !vetting ? (
-          <div className="px-5 py-8 text-center">
-            <span className="h-5 w-5 animate-spin rounded-full border-2 border-ink-600 border-t-brand-400" />
+        {vettingError ? (
+          <div
+            role="alert"
+            className="px-5 py-3 rounded-lg border border-fail-500/30 bg-fail-950/60 text-xs text-fail-400"
+          >
+            {vettingError}
           </div>
         ) : null}
         {vetting && (
@@ -145,7 +145,7 @@ export function CarrierDetailClient({ carrier, vetting }) {
           </div>
         )}
 
-        {!vetting && !error && !evaluating && (
+        {!vetting && !vettingError && (
           <div className="px-5 py-8 text-center">
             <p className="text-xs text-mist-500">No vetting evaluation available.</p>
           </div>

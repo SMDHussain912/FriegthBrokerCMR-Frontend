@@ -69,6 +69,10 @@ export function LoadDetailClient({ load }) {
         ) : null}
       </Panel>
 
+      {load.status === "POSTED" && (
+        <AssignCarrierPanel load={load} />
+      )}
+
       <LoadEligibilityPanel
         load={load}
         eligibility={eligibility}
@@ -180,6 +184,156 @@ function LoadEligibilityPanel({
           </p>
         </div>
       ) : null}
+    </Panel>
+  );
+}
+
+/**
+ * AssignCarrierPanel — lets a broker accept a POSTED load by assigning a
+ * carrier. Calls the BFF assign route which runs load-specific vetting and
+ * generates an audit snapshot.
+ */
+function AssignCarrierPanel({ load }) {
+  const [carriers, setCarriers] = useState([]);
+  const [carriersLoading, setCarriersLoading] = useState(true);
+  const [actorRole, setActorRole] = useState("broker");
+  const [selectedCarrierId, setSelectedCarrierId] = useState("");
+  const [overrideReason, setOverrideReason] = useState("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState(null);
+  const [assigned, setAssigned] = useState(null);
+
+  useEffect(() => {
+    // Load carriers for the dropdown.
+    fetch("/api/carriers")
+      .then((r) => r.json())
+      .then((data) => {
+        setCarriers(data?.carriers ?? []);
+        setCarriersLoading(false);
+      })
+      .catch(() => setCarriersLoading(false));
+
+    // Fetch the current user's role from the session (cookie is httpOnly,
+    // so a same-origin fetch includes it automatically).
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.user?.role) setActorRole(data.user.role);
+      })
+      .catch(() => {});
+  }, []);
+
+  async function handleAssign(event) {
+    event.preventDefault();
+    setError(null);
+    setPending(true);
+
+    try {
+      const response = await fetch(`/api/loads/${encodeURIComponent(load._id)}/assign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          carrierId: selectedCarrierId,
+          actorRole,
+          overrideReason: overrideReason || undefined,
+        }),
+      });
+
+      const body = await response.json();
+
+      if (!response.ok) {
+        setError(body?.error || "Assignment failed.");
+        setPending(false);
+        return;
+      }
+
+      setAssigned(body);
+    } catch {
+      setError("Network error — could not reach the assignment service.");
+      setPending(false);
+    }
+  }
+
+  if (assigned) {
+    return (
+      <div className="rounded-lg border border-pass-500/30 bg-pass-950/40 p-5">
+        <h2 className="text-sm font-semibold text-pass-400">Load accepted</h2>
+        <p className="mt-1 text-xs text-mist-300">
+          {assigned.assignment?.carrierName} has been assigned to{" "}
+          {assigned.assignment?.loadNumber}.
+        </p>
+        <p className="mt-1 text-xs text-mist-500">
+          Decision: {assigned.assignment?.assignmentDecision} ·{" "}
+          Certificate: {assigned.assignment?.dueDiligenceCertificateId}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <Panel>
+      <PanelHeader
+        title="Accept load"
+        description="Assign a carrier to this load. Vetting runs automatically before assignment."
+      />
+      {error ? (
+        <div
+          role="alert"
+          className="rounded-lg border border-fail-500/30 bg-fail-950/60 px-3 py-2.5 text-xs text-fail-400 mb-4"
+        >
+          {error}
+        </div>
+      ) : null}
+      <form onSubmit={handleAssign} className="space-y-4 px-5 py-4">
+        <div>
+          <label
+            htmlFor="assign-carrier"
+            className="block text-[11px] font-medium uppercase tracking-[0.08em] text-mist-400"
+          >
+            Carrier
+          </label>
+          <select
+            id="assign-carrier"
+            required
+            value={selectedCarrierId}
+            onChange={(e) => setSelectedCarrierId(e.target.value)}
+            disabled={carriersLoading || pending}
+            className="mt-2 w-full rounded-lg border border-ink-600 bg-ink-850 px-3 py-2.5 text-sm text-mist-100 transition-colors focus:border-brand-500 focus:outline-none"
+          >
+            <option value="">Select a carrier</option>
+            {carriers.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.legalName} ({c.dotNumber} / {c.mcNumber})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label
+            htmlFor="assign-override"
+            className="block text-[11px] font-medium uppercase tracking-[0.08em] text-mist-400"
+          >
+            Override reason (compliance officer / admin only)
+          </label>
+          <textarea
+            id="assign-override"
+            value={overrideReason}
+            onChange={(e) => setOverrideReason(e.target.value)}
+            rows={2}
+            placeholder="Justification for overriding a failed vetting result…"
+            className="mt-2 w-full rounded-lg border border-ink-600 bg-ink-850 px-3 py-2.5 text-sm text-mist-100 transition-colors focus:border-brand-500 focus:outline-none"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={pending || !selectedCarrierId}
+          className="w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-500 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {pending ? "Assigning…" : "Accept & assign carrier"}
+        </button>
+      </form>
     </Panel>
   );
 }
