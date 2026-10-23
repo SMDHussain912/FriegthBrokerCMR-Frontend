@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { DashboardNav } from "@/components/dashboard-nav";
+import { DashboardNav, DashboardNavCompact } from "@/components/dashboard-nav";
 
 // The nav reads the current path from next/navigation. We control it so the
 // test can assert the active state for any route.
@@ -66,5 +66,54 @@ describe("DashboardNav", () => {
     expect(
       screen.getByRole("navigation", { name: "Console sections" })
     ).toBeInTheDocument();
+  });
+});
+
+/**
+ * The 256px operations rail left only ~130px for content at a 390px
+ * viewport, so the layout swaps in a compact, horizontally scrollable row
+ * below the `md` breakpoint. These tests guard that the compact variant
+ * exposes the same destinations and keeps the active-state behaviour.
+ */
+describe("DashboardNavCompact", () => {
+  beforeEach(() => {
+    mockPathname = "/dashboard";
+  });
+
+  it("renders every console section", () => {
+    render(<DashboardNavCompact />);
+    expect(screen.getByRole("link", { name: /Dashboard/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Loads/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Carriers/ })).toBeInTheDocument();
+  });
+
+  it("exposes a labelled navigation landmark", () => {
+    render(<DashboardNavCompact />);
+    expect(
+      screen.getByRole("navigation", { name: "Console sections (compact)" })
+    ).toBeInTheDocument();
+  });
+
+  it("marks exactly one item as the current page", () => {
+    render(<DashboardNavCompact />);
+    expect(screen.getByRole("link", { current: "page" })).toHaveTextContent(
+      "Dashboard"
+    );
+  });
+
+  it("activates the Carriers section on a nested carrier detail route", () => {
+    mockPathname = "/dashboard/carriers/65f0000000000000000000aa";
+    render(<DashboardNavCompact />);
+    expect(screen.getByRole("link", { current: "page" })).toHaveTextContent(
+      "Carriers"
+    );
+  });
+
+  it("is hidden from md upwards so the desktop rail stays in charge", () => {
+    render(<DashboardNavCompact />);
+    const nav = screen.getByRole("navigation", {
+      name: "Console sections (compact)",
+    });
+    expect(nav.className).toContain("md:hidden");
   });
 });

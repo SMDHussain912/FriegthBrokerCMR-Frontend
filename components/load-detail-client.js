@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Panel, PanelHeader, StatusBadge, Chip, DataPoint } from "@/components/ui";
 import { formatCurrency, formatDate, formatEquipment, formatLoadStatus } from "@/lib/format";

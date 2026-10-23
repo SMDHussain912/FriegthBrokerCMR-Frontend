@@ -10,7 +10,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/data.server";
 import { logoutAction } from "@/app/actions/logout";
-import { DashboardNav } from "@/components/dashboard-nav";
+import { DashboardNav, DashboardNavCompact } from "@/components/dashboard-nav";
 
 export default async function DashboardLayout({ children }) {
   const user = await getCurrentUser();
@@ -53,27 +53,40 @@ export default async function DashboardLayout({ children }) {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <aside
-          className="flex w-64 flex-col border-r border-ink-700 bg-ink-900 shrink-0"
-        >
-          <DashboardNav />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/*
+          Compact navigation for phone widths.
 
-          <div className="px-3 py-4 border-t border-ink-700 mt-auto">
-            <p className="text-[10px] uppercase tracking-[0.1em] text-mist-500">
-              Demo environment
-            </p>
-            <p className="text-xs text-mist-500">
-              All carrier evidence is labelled demo data.
-            </p>
-          </div>
-        </aside>
+          The 256px operations rail is a fixed desktop presentation (see
+          docs/DESIGN.md), but at a 390px viewport it consumed roughly two
+          thirds of the width and left the main stage about 130px wide, so
+          every table scrolled sideways. Below `md` the rail is replaced by a
+          horizontally scrollable row and the main stage takes the full width.
+        */}
+        <DashboardNavCompact />
 
-        {/* Main content */}
-        <main className="flex-1 overflow-y-auto bg-ink-950 p-6">
-          {children}
-        </main>
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar — desktop only */}
+          <aside
+            className="hidden md:flex w-64 flex-col border-r border-ink-700 bg-ink-900 shrink-0"
+          >
+            <DashboardNav />
+
+            <div className="px-3 py-4 border-t border-ink-700 mt-auto">
+              <p className="text-[10px] uppercase tracking-[0.1em] text-mist-500">
+                Demo environment
+              </p>
+              <p className="text-xs text-mist-500">
+                All carrier evidence is labelled demo data.
+              </p>
+            </div>
+          </aside>
+
+          {/* Main content */}
+          <main className="flex-1 overflow-y-auto bg-ink-950 p-4 md:p-6">
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );
