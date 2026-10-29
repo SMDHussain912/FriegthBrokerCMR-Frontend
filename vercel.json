@@ -7,10 +7,10 @@
   "regions": ["iad1"],
   "crons": [],
   "env": {
-    "NEXT_PUBLIC_BACKEND_API_URL": {
+    "VITE_BACKEND_API_URL": {
       "sensitive": false
     },
-    "NEXT_PUBLIC_APP_URL": {
+    "VITE_APP_URL": {
       "sensitive": false
     }
   }
