@@ -17,44 +17,51 @@ import { listLoads, listCarriers } from "@/lib/data";
 import { Suspense } from "react";
 
 async function getDashboardMetrics() {
+  let loads = [];
+  let carriers = [];
+  let loadsError = null;
+  let carriersError = null;
+
   try {
-    const [loads, carriers] = await Promise.all([listLoads(), listCarriers()]);
-
-    const loadStatusCounts = loads.reduce(
-      (acc, load) => {
-        acc[load.status] = (acc[load.status] || 0) + 1;
-        return acc;
-      },
-      {}
-    );
-
-    const carrierStatusCounts = carriers.reduce(
-      (acc, carrier) => {
-        acc[carrier.overallStatus] = (acc[carrier.overallStatus] || 0) + 1;
-        return acc;
-      },
-      {}
-    );
-
-    return {
-      totalLoads: loads.length,
-      totalCarriers: carriers.length,
-      loadStatusCounts,
-      carrierStatusCounts,
-      recentLoads: loads.slice(0, 5),
-      recentCarriers: carriers.slice(0, 5),
-    };
+    const token = await getSessionToken();
+    loads = await listLoads({}, { token });
   } catch (error) {
-    // Return empty/default state so the page renders gracefully instead of crashing
-    return {
-      totalLoads: 0,
-      totalCarriers: 0,
-      loadStatusCounts: {},
-      carrierStatusCounts: {},
-      recentLoads: [],
-      recentCarriers: [],
-    };
+    loadsError = error instanceof Error ? error.message : "Failed to load loads";
+    loads = [];
   }
+
+  try {
+    const token = await getSessionToken();
+    carriers = await listCarriers({}, { token });
+  } catch (error) {
+    carriersError = error instanceof Error ? error.message : "Failed to load carriers";
+    carriers = [];
+  }
+
+  const loadStatusCounts = loads.reduce(
+    (acc, load) => {
+      acc[load.status] = (acc[load.status] || 0) + 1;
+      return acc;
+    },
+    {}
+  );
+
+  const carrierStatusCounts = carriers.reduce(
+    (acc, carrier) => {
+      acc[carrier.overallStatus] = (acc[carrier.overallStatus] || 0) + 1;
+      return acc;
+    },
+    {}
+  );
+
+  return {
+    totalLoads: loads.length,
+    totalCarriers: carriers.length,
+    loadStatusCounts,
+    carrierStatusCounts,
+    recentLoads: loads.slice(0, 5),
+    recentCarriers: carriers.slice(0, 5),
+  };
 }
 
 export default async function DashboardPage() {

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Panel, PanelHeader, LoadStatusBadge, Chip, DataTable } from "@/components/ui";
 import { EmptyState, TableSkeleton } from "@/components/states";
 import { listLoads } from "@/lib/data";
+import { getSessionToken } from "@/lib/session";
 import { formatCurrency, formatEquipment, formatRoute } from "@/lib/format";
 import { Suspense } from "react";
 
@@ -27,7 +28,8 @@ export default async function LoadsPage() {
   let loadsError = null;
 
   try {
-    loads = await listLoads();
+    const token = await getSessionToken();
+    loads = await listLoads({}, { token });
   } catch (error) {
     loadsError = error instanceof Error ? error.message : "Failed to load loads";
     loads = [];
