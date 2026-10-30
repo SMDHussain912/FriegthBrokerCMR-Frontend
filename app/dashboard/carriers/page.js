@@ -21,7 +21,24 @@ const HEADERS = [
 ];
 
 export default async function CarriersPage() {
-  const carriers = await listCarriers();
+  let carriers = [];
+  let carriersError = null;
+
+  try {
+    carriers = await listCarriers();
+  } catch (error) {
+    carriersError = error instanceof Error ? error.message : "Failed to load carriers";
+    carriers = [];
+  }
+
+  if (carriersError && carriers.length === 0) {
+    return (
+      <Panel>
+        <PanelHeader title="Carriers" description="Error loading carriers data." />
+        <div className="p-4 text-red-400">{carriersError}</div>
+      </Panel>
+    );
+  }
 
   if (carriers.length === 0) {
     return (

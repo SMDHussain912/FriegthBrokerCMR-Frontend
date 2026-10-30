@@ -23,7 +23,24 @@ const HEADERS = [
 ];
 
 export default async function LoadsPage() {
-  const loads = await listLoads();
+  let loads = [];
+  let loadsError = null;
+
+  try {
+    loads = await listLoads();
+  } catch (error) {
+    loadsError = error instanceof Error ? error.message : "Failed to load loads";
+    loads = [];
+  }
+
+  if (loadsError && loads.length === 0) {
+    return (
+      <Panel>
+        <PanelHeader title="Loads" description="Error loading loads data." />
+        <div className="p-4 text-red-400">{loadsError}</div>
+      </Panel>
+    );
+  }
 
   if (loads.length === 0) {
     return (

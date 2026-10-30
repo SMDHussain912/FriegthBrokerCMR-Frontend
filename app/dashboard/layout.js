@@ -13,7 +13,14 @@ import { logoutAction } from "@/app/actions/logout";
 import { DashboardNav, DashboardNavCompact } from "@/components/dashboard-nav";
 
 export default async function DashboardLayout({ children }) {
-  const user = await getCurrentUser();
+  let user = null;
+  try {
+    user = await getCurrentUser();
+  } catch (error) {
+    // Log server-side error without exposing sensitive data
+    console.error("[DashboardLayout] Failed to get current user:", error.message);
+    user = null;
+  }
   if (!user) {
     redirect("/");
   }
