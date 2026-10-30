@@ -17,32 +17,44 @@ import { listLoads, listCarriers } from "@/lib/data";
 import { Suspense } from "react";
 
 async function getDashboardMetrics() {
-  const [loads, carriers] = await Promise.all([listLoads(), listCarriers()]);
+  try {
+    const [loads, carriers] = await Promise.all([listLoads(), listCarriers()]);
 
-  const loadStatusCounts = loads.reduce(
-    (acc, load) => {
-      acc[load.status] = (acc[load.status] || 0) + 1;
-      return acc;
-    },
-    {}
-  );
+    const loadStatusCounts = loads.reduce(
+      (acc, load) => {
+        acc[load.status] = (acc[load.status] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
 
-  const carrierStatusCounts = carriers.reduce(
-    (acc, carrier) => {
-      acc[carrier.overallStatus] = (acc[carrier.overallStatus] || 0) + 1;
-      return acc;
-    },
-    {}
-  );
+    const carrierStatusCounts = carriers.reduce(
+      (acc, carrier) => {
+        acc[carrier.overallStatus] = (acc[carrier.overallStatus] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
 
-  return {
-    totalLoads: loads.length,
-    totalCarriers: carriers.length,
-    loadStatusCounts,
-    carrierStatusCounts,
-    recentLoads: loads.slice(0, 5),
-    recentCarriers: carriers.slice(0, 5),
-  };
+    return {
+      totalLoads: loads.length,
+      totalCarriers: carriers.length,
+      loadStatusCounts,
+      carrierStatusCounts,
+      recentLoads: loads.slice(0, 5),
+      recentCarriers: carriers.slice(0, 5),
+    };
+  } catch (error) {
+    // Return empty/default state so the page renders gracefully instead of crashing
+    return {
+      totalLoads: 0,
+      totalCarriers: 0,
+      loadStatusCounts: {},
+      carrierStatusCounts: {},
+      recentLoads: [],
+      recentCarriers: [],
+    };
+  }
 }
 
 export default async function DashboardPage() {
