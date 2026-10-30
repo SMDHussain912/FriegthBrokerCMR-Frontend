@@ -5,13 +5,5 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "regions": ["iad1"],
-  "crons": [],
-  "env": {
-    "BACKEND_API_URL": {
-      "sensitive": false
-    },
-    "APP_URL": {
-      "sensitive": false
-    }
-  }
+  "crons": []
 }
