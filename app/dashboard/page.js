@@ -14,6 +14,7 @@ import { MetricCard } from "@/components/dashboard-metric";
 import { RecentLoadsTable } from "@/components/recent-loads-table";
 import { RecentCarriersTable } from "@/components/recent-carriers-table";
 import { listLoads, listCarriers } from "@/lib/data";
+import { getSessionToken } from "@/lib/session";
 import { Suspense } from "react";
 
 async function getDashboardMetrics() {
