@@ -3,7 +3,7 @@
  * the client-side detail view with eligibility evaluation.
  */
 
-import { getLoad } from "@/lib/data";
+import { getLoad } from "@/lib/data.server";
 import { ErrorState } from "@/components/states";
 import { Panel, PanelHeader } from "@/components/ui";
 import { LoadDetailClient } from "@/components/load-detail-client";
